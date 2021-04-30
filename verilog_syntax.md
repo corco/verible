@@ -21,21 +21,6 @@ verible-verilog-syntax: usage: bazel-bin/verilog/tools/syntax/verible-verilog-sy
       name); default: ;
 
 
-  Flags from external/com_google_absl/absl/flags/internal/usage.cc:
-    --help (show help on important flags for this binary [tip: all flags can
-      have two dashes]); default: false;
-    --helpfull (show help on all flags); default: false; currently: true;
-    --helpmatch (show help on modules whose name contains the specified substr);
-      default: "";
-    --helpon (show help on the modules named by this flag value); default: "";
-    --helppackage (show help on all modules in the main package);
-      default: false;
-    --helpshort (show help on only the main module for this program);
-      default: false;
-    --only_check_args (exit after checking all flags); default: false;
-    --version (show version and build info and exit); default: false;
-
-
   Flags from verilog/parser/verilog_parser.cc:
     --verilog_trace_parser (Trace verilog parser); default: false;
 
@@ -54,10 +39,16 @@ verible-verilog-syntax: usage: bazel-bin/verilog/tools/syntax/verible-verilog-sy
       default: false;
     --printtokens (Prints all lexed and filtered tokens); default: false;
     --printtree (Whether or not to print the tree); default: false;
+    --show_diagnostic_context (prints an additional line on which the diagnostic
+      was found,followed by a line with a position marker); default: false;
     --verifytree (Verifies that all tokens are parsed into tree, prints
       unmatched tokens); default: false;
+
+Try --helpfull to get a list of all flags or --help=substring shows help for
+flags which include specified substring in either in the name, or description or
+path.
 ```
 
 ## Version
 
-Generated on 2021-03-02 00:18:23 -0800 from [35680eb](https://github.com/google/verible/commit/35680ebb3eed3ebc0200610252f857fa8e381510)
+Generated on 2021-04-30 15:57:21 -0400 from [89591ba](https://github.com/google/verible/commit/89591babc7af3d1faf146da1d4207d6e994c6528)

@@ -22,21 +22,6 @@ verible-verilog-lint: usage: bazel-bin/verilog/tools/lint/verible-verilog-lint [
       name); default: ;
 
 
-  Flags from external/com_google_absl/absl/flags/internal/usage.cc:
-    --help (show help on important flags for this binary [tip: all flags can
-      have two dashes]); default: false;
-    --helpfull (show help on all flags); default: false; currently: true;
-    --helpmatch (show help on modules whose name contains the specified substr);
-      default: "";
-    --helpon (show help on the modules named by this flag value); default: "";
-    --helppackage (show help on all modules in the main package);
-      default: false;
-    --helpshort (show help on only the main module for this program);
-      default: false;
-    --only_check_args (exit after checking all flags); default: false;
-    --version (show version and build info and exit); default: false;
-
-
   Flags from verilog/analysis/verilog_linter.cc:
     --rules (Comma-separated of lint rules to enable. No prefix or a '+' prefix
       enables it, '-' disable it. Configuration values for each rules placed
@@ -68,6 +53,12 @@ verible-verilog-lint: usage: bazel-bin/verilog/tools/lint/verible-verilog-lint [
       default: true;
     --parse_fatal (If true, exit nonzero if there are any syntax errors.);
       default: true;
+    --show_diagnostic_context (prints an additional line on which the diagnostic
+      was found,followed by a line with a position marker); default: false;
+
+Try --helpfull to get a list of all flags or --help=substring shows help for
+flags which include specified substring in either in the name, or description or
+path.
 ```
 
 ## Lint Rules
@@ -155,7 +146,7 @@ Enabled by default: true
 ### forbid-line-continuations
 Checks that there are no occurrences of `'\'` when breaking the string literal line. Use concatenation operator with braces instead. See [Style: forbid-line-continuations].
 
-Enabled by default: false
+Enabled by default: true
 
 ### forbidden-macro
 Checks that no forbidden macro calls are used. See [Verification-Style: logging].
@@ -203,6 +194,11 @@ Enabled by default: true
 Checks that every macro name follows ALL_CAPS naming convention.  Exception: UVM-like macros.  See [Style: defines].
 
 Enabled by default: true
+
+### macro-string-concatenation
+Concatenation will not be evaluated here. Use `"...`" instead. See [Style: defines].
+
+Enabled by default: false
 
 ### mismatched-labels
 Labels mismatch. See:[Style: mismatched-labels].
@@ -284,6 +280,11 @@ Checks that plusargs are always assigned a value, by ensuring that plusargs are 
 
 Enabled by default: true
 
+### port-name-suffix
+Check that port names end with _i for inputs, _o for outputs and _io for inouts. Alternatively, for active-low signals use _n[io], for differential pairs use _n[io] and _p[io]. See [Style: suffixes-for-signals-and-types].
+
+Enabled by default: false
+
 ### positive-meaning-parameter-name
 Checks that no parameter name starts with 'disable', using positive naming (starting with 'enable') is recommended. See [Style: binary-parameters].
 
@@ -306,6 +307,9 @@ Enabled by default: false
 
 ### struct-union-name-style
 Checks that `struct` and `union` names use lower_snake_case naming convention and end with '_t'. See [Style: struct-union-conventions].
+##### Parameters
+ * `exceptions` (Comma-separated list of allowed upper-case elements, such as unit-names. Default: Empty)
+
 
 Enabled by default: true
 
@@ -354,4 +358,4 @@ Enabled by default: true
 
 ## Version
 
-Generated on 2021-03-02 00:18:23 -0800 from [35680eb](https://github.com/google/verible/commit/35680ebb3eed3ebc0200610252f857fa8e381510)
+Generated on 2021-04-30 15:57:21 -0400 from [89591ba](https://github.com/google/verible/commit/89591babc7af3d1faf146da1d4207d6e994c6528)

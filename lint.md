@@ -84,7 +84,7 @@ Enabled by default: true
 ### forbid-line-continuations
 Checks that there are no occurrences of `'\'` when breaking the string literal line. Use concatenation operator with braces instead. See [Style: forbid-line-continuations].
 
-Enabled by default: false
+Enabled by default: true
 
 ### forbidden-macro
 Checks that no forbidden macro calls are used. See [Verification-Style: logging].
@@ -132,6 +132,11 @@ Enabled by default: true
 Checks that every macro name follows ALL_CAPS naming convention.  Exception: UVM-like macros.  See [Style: defines].
 
 Enabled by default: true
+
+### macro-string-concatenation
+Concatenation will not be evaluated here. Use `"...`" instead. See [Style: defines].
+
+Enabled by default: false
 
 ### mismatched-labels
 Labels mismatch. See:[Style: mismatched-labels].
@@ -213,6 +218,11 @@ Checks that plusargs are always assigned a value, by ensuring that plusargs are 
 
 Enabled by default: true
 
+### port-name-suffix
+Check that port names end with _i for inputs, _o for outputs and _io for inouts. Alternatively, for active-low signals use _n[io], for differential pairs use _n[io] and _p[io]. See [Style: suffixes-for-signals-and-types].
+
+Enabled by default: false
+
 ### positive-meaning-parameter-name
 Checks that no parameter name starts with 'disable', using positive naming (starting with 'enable') is recommended. See [Style: binary-parameters].
 
@@ -235,6 +245,9 @@ Enabled by default: false
 
 ### struct-union-name-style
 Checks that `struct` and `union` names use lower_snake_case naming convention and end with '_t'. See [Style: struct-union-conventions].
+##### Parameters
+ * `exceptions` (Comma-separated list of allowed upper-case elements, such as unit-names. Default: Empty)
+
 
 Enabled by default: true
 
@@ -283,4 +296,4 @@ Enabled by default: true
 
 ## Version
 
-Generated on 2021-03-02 00:18:23 -0800 from [35680eb](https://github.com/google/verible/commit/35680ebb3eed3ebc0200610252f857fa8e381510)
+Generated on 2021-04-30 15:57:21 -0400 from [89591ba](https://github.com/google/verible/commit/89591babc7af3d1faf146da1d4207d6e994c6528)
