@@ -26,37 +26,36 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Create Cache Timestamp
-      id: cache_timestamp
-      uses: nanzm/get-time-action@v1.1
-      with:
-        format: 'YYYY-MM-DD-HH-mm-ss'
+    # - name: Create Cache Timestamp
+    #   id: cache_timestamp
+    #   uses: nanzm/get-time-action@v1.1
+    #   with:
+    #     format: 'YYYY-MM-DD-HH-mm-ss'
 
-    - name: Mount bazel cache
-      uses: actions/cache@v2
-      # Currently, this is using >3GiB, bringing us well beyond 5GiB per repo
-      if: false
-      with:
-        path: "c:/users/runneradmin/_bazel_runneradmin"
-        key: bazelcache_windows2_${{ steps.cache_timestamp.outputs.time }}
-        restore-keys: bazelcache_windows2_
+    # - name: Mount bazel cache
+    #   uses: actions/cache@v2
+    #   # Currently, this is using >3GiB, bringing us well beyond 5GiB per repo
+    #   if: false
+    #   with:
+    #     path: "c:/users/runneradmin/_bazel_runneradmin"
+    #     key: bazelcache_windows2_${{ steps.cache_timestamp.outputs.time }}
+    #     restore-keys: bazelcache_windows2_
 
-    - name: Install dependencies
-      run: choco install llvm
+    # - name: Debug bazel directory settings
+    #   run: bazel info
 
-    - name: Debug bazel directory settings
-      run: bazel info
+    # - name: Run Tests
+    #   run: bazel test --test_output=errors //...
 
-    - name: Run Tests
-      run: bazel test --test_output=errors //...
-
-    - name: Build Verible Binaries
-      run: bazel build -c opt :install-binaries
+    # - name: Build Verible Binaries
+    #   run: bazel build -c opt :install-binaries
 
     - name: Install Verible & Zip
+      #bazel run -c opt :install -- "verible-win64-${Env:GITHUB_SHA}"
       run: |
-        bazel run -c opt :install -- verible-win64-${GITHUB_SHA}
-        7z a verible-win64-${GITHUB_SHA}.zip verible-win64-${GITHUB_SHA}
+        mkdir "verible-win64-${Env:GITHUB_SHA}"
+        echo "I'm a test" > "verible-win64-${Env:GITHUB_SHA}/patate.txt"
+        7z a verible-win64-"${Env:GITHUB_SHA}".zip "verible-win64-${Env:GITHUB_SHA}"
 
     - name: 📤 Upload artifact
       uses: actions/upload-artifact@v2
