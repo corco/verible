@@ -53,25 +53,16 @@ jobs:
     - name: Install Verible & Zip
       #bazel run -c opt :install -- "verible-win64-${Env:GITHUB_SHA}"
       run: |
-        mkdir "verible-win64-${Env:GITHUB_SHA}"
-        echo "I'm a test" > "verible-win64-${Env:GITHUB_SHA}/patate.txt"
-        7z a verible-win64-"${Env:GITHUB_SHA}".zip "verible-win64-${Env:GITHUB_SHA}"
+        $GIT_VERSION = git rev-parse --short ${Env:GITHUB_SHA}
+        mkdir "verible-${GIT_VERSION}-win64"
+        echo "I'm a test" > "verible-${GIT_VERSION}-win64/patate.txt"
+        7z a verible-"${GIT_VERSION}-win64".zip "verible-${GIT_VERSION}-win64"
 
     - name: 📤 Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        path: verible-win64-${GITHUB_SHA}.zip
+        path: verible-*.zip
 
-
-    # We need to shut down bazel to let go of the filedescriptors in the
-    # cache directory. Because of strange filesystem semantics on Windows, this
-    # prevents packaging up the cache.
-    - name: Stop Bazel
-      run: |
-        bazel shutdown
-        # The cache pack/restore has issues with these symbolic links
-        rm c:/users/runneradmin/_bazel_runneradmin/*/install
-        rm c:/users/runneradmin/_bazel_runneradmin/*/java.log
 
   Release:
     needs: [ WindowsBuild ]
