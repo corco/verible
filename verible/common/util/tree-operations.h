@@ -28,10 +28,11 @@
 //   Pointer and iterator stability is not required.
 //
 // To check whether class `T` fulfills the concept one can use the
-// `TreeNodeTraits<T>` traits struct. It is defined only for classes fulfilling
-// the TreeNode concept, what makes it suitable for SFINAE tests. For
-// readability and consistency with Value and Parent checks (described below)
-// there is a member `TreeNodeTraits<T>::available` which is always true.
+// `TreeNodeTraits<T>` traits struct, which is defined for any `T` and has a
+// member `TreeNodeTraits<T>::available`, true only when `T` fulfills the
+// TreeNode concept. `std::enable_if_t<TreeNodeTraits<T>::available>` is
+// therefore suitable for SFINAE tests, consistent with the Value and Parent
+// checks described below.
 //
 // Optional members:
 //
@@ -171,12 +172,24 @@ void ReserveIfSupported(Container &, ...) {}  // NOLINT
 // TreeNodeTraits:
 
 // Traits of a type fulfilling TreeNode concept.
-// `TreeNodeTraits<T>` is defined for every class `T` fulfilling the TreeNode
-// concept. It can be used in SFINAE tests.
+// `TreeNodeTraits<T>::available` is true for every class `T` fulfilling the
+// TreeNode concept. It can be used in SFINAE tests.
+//
+// Children_ is routed through `detected_or_t` (like Parent_ and Value_
+// below), rather than being substituted directly as a default template
+// argument, so that a `Node` without `Children()` is merely detected as
+// unavailable instead of making `TreeNodeTraits<Node>` itself ill-formed.
+// MSVC's template engine does not reliably propagate SFINAE failures through
+// several nested levels of default template arguments each depending on
+// `decltype(std::declval<Node>()....)`, and going through the well-tested
+// `detected_or_t` partial-specialization idiom at every level avoids that.
 template <class Node,  //
           typename Children_ =
-              tree_operations_internal::TreeNodeChildrenTraits<Node>>
-struct TreeNodeTraits : FeatureTraits {
+              detected_or_t<UnavailableFeatureTraits,
+                            tree_operations_internal::TreeNodeChildrenTraits,
+                            Node>>
+struct TreeNodeTraits {
+  static constexpr bool available = Children_::available;
   using Parent =
       detected_or_t<UnavailableFeatureTraits,
                     tree_operations_internal::TreeNodeParentTraits, Node>;
