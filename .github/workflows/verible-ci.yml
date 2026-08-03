@@ -404,11 +404,11 @@ jobs:
       run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe info
 
     - name: Run Tests
-      run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe test --keep_going --noshow_progress --test_output=errors //...
+      run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe test --config=clang-cl --keep_going --noshow_progress --test_output=errors //...
 
     - name: Build Verible Binaries
       run: |
-        C:/ProgramData/chocolatey/lib/bazel/bazel.exe build --keep_going --noshow_progress -c opt :install-binaries
+        C:/ProgramData/chocolatey/lib/bazel/bazel.exe build --config=clang-cl --keep_going --noshow_progress -c opt :install-binaries
         # Litmus test
         bazel-bin/verible/verilog/tools/syntax/verible-verilog-syntax --version
 
@@ -431,6 +431,50 @@ jobs:
       run: |
         C:/ProgramData/chocolatey/lib/bazel/bazel.exe shutdown
         # The cache pack/restore has issues with these symbolic links
+        rm c:/users/runneradmin/_bazel_runneradmin/*/install
+        rm c:/users/runneradmin/_bazel_runneradmin/*/java.log
+
+  # Tracks progress on building with the natively autoconfigured MSVC
+  # toolchain (cl.exe), as opposed to the clang-cl build above. This is
+  # known to still be broken (see .bazelrc) and is not required to pass
+  # yet, but keeps visibility on how close we are.
+  WindowsMSVCBuild:
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Cache Timestamp
+      id: cache_timestamp
+      uses: nanzm/get-time-action@v2.0
+      with:
+        format: 'YYYY-MM-DD-HH-mm-ss'
+
+    - name: Mount bazel cache
+      uses: actions/cache@v3
+      with:
+        path: "c:/users/runneradmin/_bazel_runneradmin"
+        key: bazelcache_windows_msvc_${{ steps.cache_timestamp.outputs.time }}
+        restore-keys: bazelcache_windows_msvc_
+
+    - name: Install dependencies
+      run: |
+        choco install bazel --force --version=7.6.1
+        choco install winflexbison3
+
+    - name: Debug bazel directory settings
+      run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe info
+
+    - name: Build Verible Binaries
+      run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe build --keep_going --noshow_progress -c opt :install-binaries
+
+    - name: Stop Bazel
+      if: always()
+      run: |
+        C:/ProgramData/chocolatey/lib/bazel/bazel.exe shutdown
         rm c:/users/runneradmin/_bazel_runneradmin/*/install
         rm c:/users/runneradmin/_bazel_runneradmin/*/java.log
 
