@@ -184,10 +184,9 @@ void ReserveIfSupported(Container &, ...) {}  // NOLINT
 // `decltype(std::declval<Node>()....)`, and going through the well-tested
 // `detected_or_t` partial-specialization idiom at every level avoids that.
 template <class Node,  //
-          typename Children_ =
-              detected_or_t<UnavailableFeatureTraits,
-                            tree_operations_internal::TreeNodeChildrenTraits,
-                            Node>>
+          typename Children_ = detected_or_t<
+              UnavailableFeatureTraits,
+              tree_operations_internal::TreeNodeChildrenTraits, Node>>
 struct TreeNodeTraits {
   static constexpr bool available = Children_::available;
   using Parent =
