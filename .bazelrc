@@ -19,6 +19,10 @@ common:macos   --config=unix
 
 # Applies to both clang-cl and native MSVC builds.
 common:windows --cxxopt=/std:c++20 --host_cxxopt=/std:c++20 --client_env=BAZEL_CXXOPTS=/std:c++20
+# protobuf gates native-MSVC + Bazel builds behind this define, since it
+# plans to drop that combination in a future release (see
+# https://github.com/protocolbuffers/protobuf/issues/20085). Opt in for now.
+common:windows --define=protobuf_allow_msvc=true
 
 # Opt-in: build with clang-cl instead of the natively autoconfigured MSVC
 common:clang-cl --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl --extra_execution_platforms=//:x64_windows-clang-cl
@@ -32,10 +36,9 @@ common:clang-cl --cxxopt="-Wno-dangling-reference" --host_cxxopt="-Wno-dangling-
 # Newer bisons create an unused label.
 common:unix --cxxopt="-Wno-unused-label" --host_cxxopt="-Wno-unused-label"
 common:clang-cl --cxxopt="-Wno-unused-label" --host_cxxopt="-Wno-unused-label"
-# protobuf internally uses it own deprecated RepeatedPtrField constructor internally
-# building with -Werror fails
-common:unix --cxxopt="-Wno-deprecated-declarations" --host_cxxopt="-Wno-deprecated-declarations"
-common:clang-cl --cxxopt="-Wno-deprecated-declarations" --host_cxxopt="-Wno-deprecated-declarations"
+# c++20 warning on protobuf 28.1
+common:unix --cxxopt="-Wno-missing-requires" --host_cxxopt="-Wno-missing-requires"
+common:clang-cl --cxxopt="-Wno-missing-requires" --host_cxxopt="-Wno-missing-requires"
 
 # For 3rd party code: Disable warnings entirely.
 # They are not actionable and just create noise.
