@@ -378,21 +378,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Enable Windows long paths
-      # Testing whether the 260-char MAX_PATH limit is the actual root
-      # cause of the protobuf csharp/java/rust/objectivec exec-config
-      # compile failures (cl.exe C1083 "Cannot open include file", always
-      # deep under bazel-out's exec-transition dirs, e.g.
-      # bazel-out/x64_windows-opt-exec-ST-<hash>/bin/external/protobuf~/
-      # src/google/protobuf/compiler/csharp/_virtual_includes/csharp/...).
-      # protobuf's own MODULE.bazel ties its native-MSVC+Bazel gate
-      # directly to Windows path-length limits having been fixed, which
-      # lines up. Must run before Bazel/cl.exe are invoked so new
-      # processes pick up the policy.
-      run: |
-        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-        git config --system core.longpaths true
-
     - name: Create Cache Timestamp
       id: cache_timestamp
       uses: nanzm/get-time-action@v2.0
@@ -407,8 +392,18 @@ jobs:
         restore-keys: bazelcache_windows_
 
     - name: Install dependencies
+      # Testing whether upgrading Bazel fixes the protobuf exec-config
+      # compile failure (cl.exe C1083 "Cannot open include file", always on
+      # protobuf's bundled csharp/java/rust/objectivec codegen plugins,
+      # "[for tool]" exec-transition builds). Ruled out so far: protobuf
+      # version (fails identically on 31.0-rc2 and 33.6), parallelism
+      # (--jobs=4 no change), and Windows path length (long paths enabled,
+      # no change). protobuf's own MODULE.bazel ties its native-MSVC+Bazel
+      # gate to "Bazel improved its handling of Windows path-length
+      # limits" -- testing whether that Bazel-side fix requires a newer
+      # Bazel than this repo's pinned 7.6.1.
       run: |
-        choco install bazel --force --version=7.6.1
+        choco install bazel --force --version=9.2.0
         choco install winflexbison3
 
     - name: Debug bazel directory settings
@@ -416,6 +411,14 @@ jobs:
       # the default Windows runner seems to run bazelisk(?) and downloads the
       # latest bazel, which is incompatible. Should be in variable.
       run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe info
+
+    - name: Diagnose previously-failing target on newer Bazel
+      # //verible/verilog/tools/kythe:verilog-kythe-extractor_test is the
+      # one test that "FAILS TO BUILD" on the full suite (it needs protoc
+      # as a build-time tool, forcing the exec-transition compile). Much
+      # cheaper than the full suite (minutes instead of ~40) for a first
+      # signal on whether the newer Bazel fixes this.
+      run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe test --noshow_progress --test_output=errors //verible/verilog/tools/kythe:verilog-kythe-extractor_test
 
     - name: Run Tests
       run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe test --keep_going --noshow_progress --test_output=errors //...

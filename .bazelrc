@@ -1,6 +1,3 @@
-# bazel < 7 needs explicit enabling of bzlmod dependencies.
-build --enable_bzlmod
-
 # Enable support for absl types like string_view in gtest.
 build --define="absl=1"
 
