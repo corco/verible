@@ -4,6 +4,7 @@ Rules for adding './configure && make' style dependencies.
 
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load(":no_toolchain.bzl", "no_toolchain")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -23,6 +24,7 @@ cc_library(
 exports_files([
     "bison.bzl",
     "flex.bzl",
+    "no_toolchain.bzl",
     "sh_test_with_runfiles_lib.bzl",
     "sh_test_with_runfiles_lib.sh",
 ])
@@ -41,9 +43,8 @@ config_setting(
 # genrule's non-configurable `toolchains` attribute (see flex.bzl/bison.bzl):
 # the select lives on an alias's `actual` attribute instead, which is
 # configurable, and the alias itself is what's listed in `toolchains`.
-filegroup(
+no_toolchain(
     name = "no_toolchain",
-    srcs = [],
 )
 
 bool_flag(
