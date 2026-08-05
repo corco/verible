@@ -312,7 +312,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        echo "USE_BAZEL_VERSION=7.6.1" >> $GITHUB_ENV
+        echo "USE_BAZEL_VERSION=9.2.0" >> $GITHUB_ENV
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -392,16 +392,6 @@ jobs:
         restore-keys: bazelcache_windows_
 
     - name: Install dependencies
-      # Testing whether upgrading Bazel fixes the protobuf exec-config
-      # compile failure (cl.exe C1083 "Cannot open include file", always on
-      # protobuf's bundled csharp/java/rust/objectivec codegen plugins,
-      # "[for tool]" exec-transition builds). Ruled out so far: protobuf
-      # version (fails identically on 31.0-rc2 and 33.6), parallelism
-      # (--jobs=4 no change), and Windows path length (long paths enabled,
-      # no change). protobuf's own MODULE.bazel ties its native-MSVC+Bazel
-      # gate to "Bazel improved its handling of Windows path-length
-      # limits" -- testing whether that Bazel-side fix requires a newer
-      # Bazel than this repo's pinned 7.6.1.
       run: |
         choco install bazel --force --version=9.2.0
         choco install winflexbison3
@@ -411,14 +401,6 @@ jobs:
       # the default Windows runner seems to run bazelisk(?) and downloads the
       # latest bazel, which is incompatible. Should be in variable.
       run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe info
-
-    - name: Diagnose previously-failing target on newer Bazel
-      # //verible/verilog/tools/kythe:verilog-kythe-extractor_test is the
-      # one test that "FAILS TO BUILD" on the full suite (it needs protoc
-      # as a build-time tool, forcing the exec-transition compile). Much
-      # cheaper than the full suite (minutes instead of ~40) for a first
-      # signal on whether the newer Bazel fixes this.
-      run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe test --noshow_progress --test_output=errors //verible/verilog/tools/kythe:verilog-kythe-extractor_test
 
     - name: Run Tests
       run: C:/ProgramData/chocolatey/lib/bazel/bazel.exe test --keep_going --noshow_progress --test_output=errors //...

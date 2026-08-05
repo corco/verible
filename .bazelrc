@@ -16,10 +16,6 @@ common:macos   --config=unix
 
 # Applies to both clang-cl and native MSVC builds.
 common:windows --cxxopt=/std:c++20 --host_cxxopt=/std:c++20 --client_env=BAZEL_CXXOPTS=/std:c++20
-# protobuf gates native-MSVC + Bazel builds behind this define, since it
-# plans to drop that combination in a future release (see
-# https://github.com/protocolbuffers/protobuf/issues/20085). Opt in for now.
-common:windows --define=protobuf_allow_msvc=true
 # Actions (e.g. the genrules invoking win_flex.exe/win_bison.exe) need the
 # invoking shell's PATH to find tools installed via choco shims.
 # --action_env only covers the target configuration; genrules built
@@ -39,9 +35,10 @@ common:clang-cl --cxxopt="-Wno-dangling-reference" --host_cxxopt="-Wno-dangling-
 # Newer bisons create an unused label.
 common:unix --cxxopt="-Wno-unused-label" --host_cxxopt="-Wno-unused-label"
 common:clang-cl --cxxopt="-Wno-unused-label" --host_cxxopt="-Wno-unused-label"
-# c++20 warning on protobuf 28.1
-common:unix --cxxopt="-Wno-missing-requires" --host_cxxopt="-Wno-missing-requires"
-common:clang-cl --cxxopt="-Wno-missing-requires" --host_cxxopt="-Wno-missing-requires"
+# protobuf internally uses it own deprecated RepeatedPtrField constructor internally
+# building with -Werror fails
+common:unix --cxxopt="-Wno-deprecated-declarations" --host_cxxopt="-Wno-deprecated-declarations"
+common:clang-cl --cxxopt="-Wno-deprecated-declarations" --host_cxxopt="-Wno-deprecated-declarations"
 
 # For 3rd party code: Disable warnings entirely.
 # They are not actionable and just create noise.
