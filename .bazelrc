@@ -20,6 +20,9 @@ common:windows --cxxopt=/std:c++20 --host_cxxopt=/std:c++20 --client_env=BAZEL_C
 # plans to drop that combination in a future release (see
 # https://github.com/protocolbuffers/protobuf/issues/20085). Opt in for now.
 common:windows --define=protobuf_allow_msvc=true
+# Actions (e.g. the genrules invoking win_flex.exe/win_bison.exe) need the
+# invoking shell's PATH to find tools installed via choco shims.
+common:windows --action_env=PATH
 
 # Opt-in: build with clang-cl instead of the natively autoconfigured MSVC
 common:clang-cl --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl --extra_execution_platforms=//:x64_windows-clang-cl
