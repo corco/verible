@@ -37,6 +37,15 @@ config_setting(
     flag_values = {":use_local_flex_bison": "true"},
 )
 
+# Placeholder used where a select() would otherwise need to switch a
+# genrule's non-configurable `toolchains` attribute (see flex.bzl/bison.bzl):
+# the select lives on an alias's `actual` attribute instead, which is
+# configurable, and the alias itself is what's listed in `toolchains`.
+filegroup(
+    name = "no_toolchain",
+    srcs = [],
+)
+
 bool_flag(
     name = "create_static_linked_executables",
     build_setting_default = False,
